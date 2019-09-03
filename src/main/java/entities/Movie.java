@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-
 
 @Entity
 public class Movie implements Serializable {
@@ -14,25 +12,40 @@ public class Movie implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     private String title;
     private int releaseYear;
-    
+    private String[] actors;
+
+    public Movie(String title, int releaseYear, String[] actors) {
+        this.title = title;
+        this.releaseYear = releaseYear;
+        this.actors = actors;
+    }
+
+    public String[] getActors() {
+        return actors;
+    }
+
+    public void setActors(String[] actors) {
+        this.actors = actors;
+    }
+
+    @Override
+    public String toString() {
+        return "Movie{" + "id=" + id + ", title=" + title + ", releaseYear=" + releaseYear + ", actors=" + actors + '}';
+    }
+
     public Movie() {
     }
-        
-    public Long getId() {
+
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
-
-    public Movie(String title, int releaseYear) {
-        this.title = title;
-        this.releaseYear = releaseYear;
-    } 
 
     public String getTitle() {
         return title;
@@ -50,10 +63,4 @@ public class Movie implements Serializable {
         this.releaseYear = releaseYear;
     }
 
-    @Override
-    public String toString() {
-        return "Movie{" + "id=" + id + ", title=" + title + ", releaseYear=" + releaseYear + '}';
-    }
-    
- 
 }

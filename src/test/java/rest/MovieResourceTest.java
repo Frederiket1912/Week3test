@@ -1,11 +1,15 @@
 package rest;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import entities.Movie;
 import utils.EMF_Creator;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
 import io.restassured.parsing.Parser;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.core.UriBuilder;
@@ -23,7 +27,7 @@ import utils.EMF_Creator.DbSelector;
 import utils.EMF_Creator.Strategy;
 
 //Uncomment the line below, to temporarily disable this test
-@Disabled
+//@Disabled
 public class MovieResourceTest {
 
     private static final int SERVER_PORT = 7777;
@@ -34,6 +38,7 @@ public class MovieResourceTest {
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -42,7 +47,7 @@ public class MovieResourceTest {
 
     @BeforeAll
     public static void setUpClass() {
-        emf = EMF_Creator.createEntityManagerFactory(DbSelector.TEST, Strategy.CREATE);
+        emf = EMF_Creator.createEntityManagerFactory(DbSelector.TEST, Strategy.DROP_AND_CREATE);
 
         //NOT Required if you use the version of EMF_Creator.createEntityManagerFactory used above        
         //System.setProperty("IS_TEST", TEST_DB);
@@ -70,9 +75,12 @@ public class MovieResourceTest {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.createNamedQuery("Movie.deleteAllRows").executeUpdate();
-            em.persist(new Movie("Some txt",123));
-            em.persist(new Movie("aaa",123));
+            em.createNativeQuery("DELETE FROM MOVIE").executeUpdate();
+            //em.createNativeQuery("DROP TABLE MOVIE").executeUpdate(); 
+            String[] actors = {"Hans Hansen", "Peter Petersen"};
+            em.persist(new Movie("Some txt",123,actors));
+            em.persist(new Movie("aaa",123,actors));
+            em.persist(new Movie("aaa",124,actors));
            
             em.getTransaction().commit();
         } finally {
@@ -83,7 +91,7 @@ public class MovieResourceTest {
     @Test
     public void testServerIsUp() {
         System.out.println("Testing is server UP");
-        given().when().get("/xxx").then().statusCode(200);
+        given().when().get("/movie").then().statusCode(200);
     }
    
     //This test assumes the database contains two rows
@@ -91,7 +99,7 @@ public class MovieResourceTest {
     public void testDummyMsg() throws Exception {
         given()
         .contentType("application/json")
-        .get("/xxx/").then()
+        .get("/movie/").then()
         .assertThat()
         .statusCode(HttpStatus.OK_200.getStatusCode())
         .body("msg", equalTo("Hello World"));   
@@ -101,9 +109,46 @@ public class MovieResourceTest {
     public void testCount() throws Exception {
         given()
         .contentType("application/json")
-        .get("/xxx/count").then()
+        .get("/movie/count").then()
         .assertThat()
         .statusCode(HttpStatus.OK_200.getStatusCode())
-        .body("count", equalTo(2));   
+        .body("count", equalTo("3"));   
+    }
+    
+    @Test
+    public void logTest() {
+        System.out.println("LogTest Started ------------------------------------------");
+        given().
+                log().all().
+        when().
+                get("/movie/title/aaa").
+        then().
+                log().body();
+        System.out.println("----------------------------------------------------");
+    }
+    
+    @Test
+    public void testTitle() throws Exception{
+        //int[] arr = {123,124};
+        List<Integer> arr = new ArrayList<>();
+        arr.add(123);
+        arr.add(124);
+        given()
+                .contentType("application/json")
+                .get("/movie/title/aaa")
+                .then().assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("releaseYear", equalTo(arr));
+    }
+    
+    @Test
+    public void testId() throws Exception{
+        System.out.println("testId start------------------------------------------------------");
+        given()
+                .contentType("application/json")
+                .get("/movie/1")
+                .then().log().body().assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("title", equalTo("aaa"));
     }
 }

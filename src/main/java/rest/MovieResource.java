@@ -51,13 +51,13 @@ public class MovieResource {
         return GSON.toJson(movies);
     }
     
-    @POST
-    @Path("/{title}/{releaseYear}")
-    @Consumes({MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_JSON})
-    public String createMovie(@PathParam("title") String title, @PathParam("releaseYear") int releaseYear){
-        return  GSON.toJson(FACADE.addMovie(title, releaseYear));
-    }
+//    @POST
+//    @Path("/{title}/{releaseYear}")
+//    @Consumes({MediaType.APPLICATION_JSON})
+//    @Produces({MediaType.APPLICATION_JSON})
+//    public String createMovie(@PathParam("title") String title, @PathParam("releaseYear") int releaseYear){
+//        return  GSON.toJson(FACADE.addMovie(title, releaseYear));
+//    }
     
     @GET
     @Path("title/{title}")
@@ -71,6 +71,21 @@ public class MovieResource {
     @Produces({MediaType.APPLICATION_JSON})
     public String getMovieByReleaseYear(@PathParam("releaseYear") int releaseYear) {
      return GSON.toJson(FACADE.getMovieByReleaseYear(releaseYear));   
+    }
+    
+    @GET
+    @Path("count")
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getNumberOfMovies() {
+        return "{\"count\":\"" + FACADE.getNumberOfMovies() + "\"}";
+    }
+    
+    @GET
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getEmployeeById(@PathParam("id") int id) {
+        return GSON.toJson(FACADE.getMovieById(id));
+        
     }
    
 }
