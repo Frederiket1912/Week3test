@@ -34,13 +34,7 @@ public class MovieResource {
         return "{\"msg\":\"Hello World\"}";
     }
 
-
-    @POST
-    @Consumes({MediaType.APPLICATION_JSON})
-    public void create(Movie entity) {
-        throw new UnsupportedOperationException();
-    }
-    
+   
     @GET
     @Path("all")
     @Produces({MediaType.APPLICATION_JSON})
