@@ -21,7 +21,7 @@ public class MovieResource {
 
     private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory(
                 "pu",
-                "jdbc:mysql://localhost:3307/movie",
+                "jdbc:mysql://localhost:3306/movie",
                 "dev",
                 "ax2",
                 EMF_Creator.Strategy.CREATE);
